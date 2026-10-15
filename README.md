@@ -527,11 +527,24 @@ tests/         unit/ + integration/
 make install          # pip install -e ".[dev]"
 make all              # format-all + lint + typecheck + test (ship bar)
 
-# Frontend (separate terminal)
+# Frontend (separate terminal; install deps once or vite is not found)
+cd dashboard && npm ci
 make dev-frontend     # Vite dev server on :5173 (override with VITE_DEV_PORT)
 make build-frontend   # production build → src/octop/dashboard/
 cd dashboard && npx tsc -b
 ```
+
+To edit the frontend (`dashboard/`) and backend (`src/octop/`) together, start them in two terminals from the repo root. `make dev` starts both, but the backend has no `--reload`, so Python changes need a full restart.
+
+```bash
+# Terminal 1: backend, restarts when src/octop/ changes
+uv run octop run --reload
+
+# Terminal 2: frontend, refreshes when dashboard/ changes
+make dev-frontend
+```
+
+Open **http://127.0.0.1:5173** (Vite proxies `/api` to `8088`). Stop any process already bound to `8088` first.
 
 Individual targets: `make test`, `make lint`, `make typecheck`, `make format`.
 

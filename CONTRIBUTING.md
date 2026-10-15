@@ -14,13 +14,20 @@ make install-hooks    # once per clone: pre-commit runs make all + dashboard bui
 make all              # format-all + backend lint + typecheck + test (ship bar)
 ```
 
-For frontend work (separate terminal):
+For frontend work (separate terminal; run `cd dashboard && npm ci` once first):
 
 ```bash
 make dev-frontend     # Vite dev server
 make lint-frontend
 make typecheck-frontend
 make check-all        # full stack quality gate
+```
+
+Editing both sides: `make dev` starts frontend and backend together, but the backend has no `--reload`. Use two terminals instead, then open http://127.0.0.1:5173 (Vite proxies `/api` to `8088`). Stop anything already listening on `8088` first.
+
+```bash
+uv run octop run --reload   # terminal 1: backend, restarts on src/octop/ changes
+make dev-frontend           # terminal 2: frontend, refreshes on dashboard/ changes
 ```
 
 ## Development workflow
@@ -31,7 +38,8 @@ make check-all        # full stack quality gate
 | `make install-hooks` | Point git at `.githooks` (pre-commit: `make all` + dashboard build) |
 | `make all` | `format-all` + backend lint + typecheck + test |
 | `make check-all` | Full stack quality gate |
-| `make dev` | Start frontend + backend dev servers |
+| `make dev` | Start frontend + backend; backend has no `--reload` |
+| `uv run octop run --reload` | Backend with auto-reload; pair with `make dev-frontend` |
 | `make build` | Build dashboard + Python wheel |
 
 ## Branching
@@ -97,11 +105,18 @@ make install-hooks    # 每个 clone 执行一次：提交前跑 make all + 前�
 make all              # format-all + 后端 lint / typecheck / test
 ```
 
-前端开发（另开终端）：
+前端开发（另开终端；首次先 `cd dashboard && npm ci`）：
 
 ```bash
 make dev-frontend
 make check-all        # 全栈质量门禁
+```
+
+同时改前后端时，`make dev` 会一起启动，但后端不带 `--reload`。改用两个终端，然后打开 http://127.0.0.1:5173（Vite 把 `/api` 代理到 `8088`）。启动前先停掉已占用 `8088` 的进程。
+
+```bash
+uv run octop run --reload   # 终端 1：后端，改 src/octop/ 后自动重启
+make dev-frontend           # 终端 2：前端，改 dashboard/ 后自动刷新
 ```
 
 ## 分支策略

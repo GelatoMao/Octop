@@ -526,11 +526,24 @@ tests/         unit/ + integration/
 make install          # pip install -e ".[dev]"
 make all              # format-all + lint + typecheck + test（发布门槛）
 
-# 前端（另开终端）
+# 前端（另开终端；首次先装依赖，否则 vite: command not found）
+cd dashboard && npm ci
 make dev-frontend     # Vite 开发服务器 :5173
 make build-frontend   # 生产构建 → src/octop/dashboard/
 cd dashboard && npx tsc -b
 ```
+
+同时改前端（`dashboard/`）和后端（`src/octop/`）时，在仓库根目录分两个终端启动。`make dev` 会一起拉起两边，但后端不带 `--reload`，改 Python 后必须整进程重启。
+
+```bash
+# 终端 1：后端，保存 src/octop/ 后自动重启
+uv run octop run --reload
+
+# 终端 2：前端，保存 dashboard/ 后自动刷新
+make dev-frontend
+```
+
+浏览器打开 **http://127.0.0.1:5173**（Vite 把 `/api` 代理到 `8088`）。启动前先停掉已占用 `8088` 的旧进程。
 
 单独执行：`make test`、`make lint`、`make typecheck`、`make format`。
 
